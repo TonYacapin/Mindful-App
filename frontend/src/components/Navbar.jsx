@@ -15,7 +15,6 @@ export default function Navbar({ setIsAuth }) {
   const links = [
     { to: "/dashboard", label: "Dashboard", icon: <FaChartLine /> },
     { to: "/journal", label: "Journal", icon: <FaBook /> },
-    { to: "/pet", label: "Pet", icon: <FaPaw /> },
   ];
 
   return (

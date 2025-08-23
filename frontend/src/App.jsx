@@ -1,21 +1,50 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { useState, useEffect } from "react";
+import { jwtDecode } from "jwt-decode";
+
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
 import Journal from "./pages/Journal";
-import Pet from "./pages/Pet";
 import Navbar from "./components/Navbar";
 
 export default function App() {
-  const [isAuth, setIsAuth] = useState(!!localStorage.getItem("token"));
+  // Function to check if token exists and is valid
+  const isTokenValid = () => {
+    const token = localStorage.getItem("token");
+    if (!token) return false;
 
-  // Update state if token changes in localStorage
+    try {
+      const { exp } = jwtDecode(token);
+      return exp * 1000 > Date.now(); // expiration in ms
+    } catch (e) {
+      console.log("Invalid token:", e);
+      return false;
+    }
+  };
+
+  const [isAuth, setIsAuth] = useState(isTokenValid());
+
+  // Update auth state if localStorage changes or token expires
   useEffect(() => {
-    const handleStorage = () => setIsAuth(!!localStorage.getItem("token"));
+    const handleStorage = () => setIsAuth(isTokenValid());
     window.addEventListener("storage", handleStorage);
-    return () => window.removeEventListener("storage", handleStorage);
+
+    // Check token validity every 30 seconds
+    const interval = setInterval(() => setIsAuth(isTokenValid()), 30000);
+
+    return () => {
+      window.removeEventListener("storage", handleStorage);
+      clearInterval(interval);
+    };
   }, []);
+
+  // Remove invalid token
+  useEffect(() => {
+    if (!isAuth) {
+      localStorage.removeItem("token");
+    }
+  }, [isAuth]);
 
   return (
     <Router>
@@ -35,10 +64,8 @@ export default function App() {
           path="/journal"
           element={isAuth ? <Journal /> : <Navigate to="/login" />}
         />
-        <Route
-          path="/pet"
-          element={isAuth ? <Pet /> : <Navigate to="/login" />}
-        />
+        {/* Catch-all route */}
+        <Route path="*" element={<Navigate to={isAuth ? "/dashboard" : "/login"} />} />
       </Routes>
     </Router>
   );
