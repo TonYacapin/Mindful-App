@@ -12,10 +12,10 @@ dotenv.config();
 
 const app = express();
 
-// ✅ Middleware (must come before routes)
+// ✅ Middleware
 app.use(cors({
   origin: process.env.CLIENT_URL || "http://localhost:5173",
-  credentials: true,               // allow cookies/auth headers if needed
+  credentials: true,
 }));
 app.use(express.json());
 
@@ -30,17 +30,10 @@ app.get("/", (req, res) => {
   res.send("Mindful Journey API is running 🚀");
 });
 
-// ✅ Database + Server Start
-const PORT = process.env.PORT || 5000;
-mongoose
-  .connect(process.env.MONGO_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  })
-  .then(() => {
-    console.log("✅ MongoDB connected successfully!");
-    app.listen(PORT, () =>
-      console.log(`🚀 Server running on http://localhost:${PORT}`)
-    );
-  })
+// ✅ Remove deprecated MongoDB options
+mongoose.connect(process.env.MONGO_URI)
+  .then(() => console.log("✅ MongoDB connected successfully!"))
   .catch((err) => console.error("❌ MongoDB connection error:", err));
+
+// ✅ Export the Express app for Vercel
+export default app;
