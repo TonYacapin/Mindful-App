@@ -25,15 +25,23 @@ app.use("/api/moods", moodRoutes);
 app.use("/api/journals", journalRoutes);
 app.use("/api/pet", petRoutes);
 
-// ✅ Basic health route
+// ✅ Health route
 app.get("/", (req, res) => {
   res.send("Mindful Journey API is running 🚀");
 });
 
-// ✅ Remove deprecated MongoDB options
+// ✅ Connect to MongoDB
 mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log("✅ MongoDB connected successfully!"))
   .catch((err) => console.error("❌ MongoDB connection error:", err));
+
+// ✅ Start the server locally (for development)
+if (process.env.NODE_ENV !== "production") {
+  const PORT = process.env.PORT || 5000;
+  app.listen(PORT, () => {
+    console.log(`🚀 Server running on http://localhost:${PORT}`);
+  });
+}
 
 // ✅ Export the Express app for Vercel
 export default app;
