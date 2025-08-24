@@ -6,7 +6,7 @@ import tailwindcss from "@tailwindcss/vite";
 export default defineConfig({
   plugins: [tailwindcss(), react()],
   server: {
-    // ✅ This makes Vite serve index.html for all routes
+    
     historyApiFallback: true,
   },
 });

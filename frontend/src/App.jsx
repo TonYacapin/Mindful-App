@@ -1,4 +1,3 @@
-// App.jsx
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import {jwtDecode} from "jwt-decode";
@@ -9,7 +8,7 @@ import Dashboard from "./pages/Dashboard";
 import Journal from "./pages/Journal";
 import Navbar from "./components/Navbar";
 
-// Function to check if token exists and is valid
+// Check if token exists and is valid
 const isTokenValid = () => {
   const token = localStorage.getItem("token");
   if (!token) return false;
@@ -24,27 +23,29 @@ const isTokenValid = () => {
 };
 
 export default function App() {
-  const [isAuth, setIsAuth] = useState(isTokenValid());
+  const [isAuth, setIsAuth] = useState(false);
 
-  // Update auth state if localStorage changes or token expires
+  // Check token immediately on page load
   useEffect(() => {
-    const handleStorage = () => setIsAuth(isTokenValid());
-    window.addEventListener("storage", handleStorage);
+    const valid = isTokenValid();
+    setIsAuth(valid);
 
-    const interval = setInterval(() => setIsAuth(isTokenValid()), 30000);
-
-    return () => {
-      window.removeEventListener("storage", handleStorage);
-      clearInterval(interval);
-    };
-  }, []);
-
-  // Remove invalid token
-  useEffect(() => {
-    if (!isAuth) {
+    if (!valid) {
       localStorage.removeItem("token");
     }
-  }, [isAuth]);
+  }, []);
+
+  // Update auth state if localStorage changes (e.g., login/logout in another tab)
+  useEffect(() => {
+    const handleStorage = () => {
+      const valid = isTokenValid();
+      setIsAuth(valid);
+      if (!valid) localStorage.removeItem("token");
+    };
+
+    window.addEventListener("storage", handleStorage);
+    return () => window.removeEventListener("storage", handleStorage);
+  }, []);
 
   return (
     <Router>
