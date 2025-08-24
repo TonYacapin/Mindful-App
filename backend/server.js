@@ -12,36 +12,47 @@ dotenv.config();
 
 const app = express();
 
-// ✅ Middleware
+// Middleware
 app.use(cors({
-  origin: process.env.CLIENT_URL || "http://localhost:5173",
+  origin: process.env.CLIENT_URL,
   credentials: true,
 }));
 app.use(express.json());
 
-// ✅ Routes
+// Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/moods", moodRoutes);
 app.use("/api/journals", journalRoutes);
 app.use("/api/pet", petRoutes);
 
-// ✅ Health route
-app.get("/", (req, res) => {
-  res.send("Mindful Journey API is running 🚀");
-});
+// Health check
+app.get("/", (req, res) => res.send("Mindful API is running 🚀"));
 
-// ✅ Connect to MongoDB
-mongoose.connect(process.env.MONGO_URI)
-  .then(() => console.log("✅ MongoDB connected successfully!"))
-  .catch((err) => console.error("❌ MongoDB connection error:", err));
+// Serverless-safe MongoDB connection
+let isConnected = false;
 
-// ✅ Start the server locally (for development)
+const connectToDB = async () => {
+  if (isConnected) return;
+  try {
+    await mongoose.connect(process.env.MONGO_URI, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    });
+    isConnected = true;
+    console.log("✅ MongoDB connected!");
+  } catch (err) {
+    console.error("❌ MongoDB connection error:", err);
+  }
+};
+
+// Call connection on every serverless function execution
+connectToDB();
+
+// Only listen locally (development)
 if (process.env.NODE_ENV !== "production") {
   const PORT = process.env.PORT || 5000;
-  app.listen(PORT, () => {
-    console.log(`🚀 Server running on http://localhost:${PORT}`);
-  });
+  app.listen(PORT, () => console.log(`🚀 Server running on http://localhost:${PORT}`));
 }
 
-// ✅ Export the Express app for Vercel
+// Export for Vercel
 export default app;
