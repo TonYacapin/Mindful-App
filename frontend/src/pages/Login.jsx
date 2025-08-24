@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { FaLeaf, FaEnvelope, FaLock, FaUserPlus, FaEye, FaEyeSlash } from "react-icons/fa";
+import { FaLeaf, FaEnvelope, FaLock, FaUserPlus, FaEye, FaEyeSlash, FaSpinner } from "react-icons/fa";
 import API from "../utils/api";
 
 export default function Login({ setIsAuth }) {
   const [form, setForm] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false); // New loading state
   const navigate = useNavigate();
 
   const handleChange = (e) =>
@@ -15,6 +16,7 @@ export default function Login({ setIsAuth }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+    setLoading(true); // Start loading
 
     try {
       const res = await API.post("/auth/login", form);
@@ -24,6 +26,8 @@ export default function Login({ setIsAuth }) {
     } catch (err) {
       console.error("Login error:", err.response?.data || err.message);
       setError(err.response?.data?.message || "Login failed. Try again.");
+    } finally {
+      setLoading(false); // Stop loading
     }
   };
 
@@ -75,9 +79,12 @@ export default function Login({ setIsAuth }) {
 
           <button
             type="submit"
-            className="bg-gradient-to-r from-pink-400 to-sky-400 hover:opacity-90 text-white font-semibold py-2 rounded-lg shadow-md transition"
+            disabled={loading}
+            className={`bg-gradient-to-r from-pink-400 to-sky-400 hover:opacity-90 text-white font-semibold py-2 rounded-lg shadow-md transition flex items-center justify-center gap-2 ${
+              loading ? "cursor-not-allowed opacity-70" : ""
+            }`}
           >
-            Login
+            {loading ? <><FaSpinner className="animate-spin" /> Logging in...</> : "Login"}
           </button>
         </form>
 
