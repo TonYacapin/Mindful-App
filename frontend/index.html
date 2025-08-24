@@ -1,13 +1,86 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Vite + React</title>
+    
+    <title>Mindful - Mood Tracker & Journal</title>
+    
+    <!-- Favicon using emoji -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text y='32' font-size='32'>🌱</text></svg>">
+
+    <!-- Meta description for SEO -->
+    <meta name="description" content="Mindful is your personal mood tracker and journal app. Record your moods, reflect on your day, and improve your mental well-being." />
+    
+    <!-- Open Graph / Social Sharing -->
+    <meta property="og:title" content="Mindful - Mood Tracker & Journal" />
+    <meta property="og:description" content="Track your moods, reflect daily, and improve your mental well-being with Mindful." />
+    <meta property="og:image" content="https://img.icons8.com/fluency/512/000000/meditation.png" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://yourdomain.com" />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Mindful - Mood Tracker & Journal" />
+    <meta name="twitter:description" content="Track your moods, reflect daily, and improve your mental well-being with Mindful." />
+    <meta name="twitter:image" content="https://img.icons8.com/fluency/512/000000/meditation.png" />
+
+    <!-- Inline styles for loader -->
+    <style>
+      #loader {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        font-size: 4rem;
+        background: linear-gradient(to bottom, #a0e9a0, #ffffff);
+        color: #4caf50;
+        flex-direction: column;
+      }
+
+      .spinner {
+        border: 6px solid #f3f3f3;
+        border-top: 6px solid #4caf50;
+        border-radius: 50%;
+        width: 50px;
+        height: 50px;
+        animation: spin 1s linear infinite;
+        margin-bottom: 1rem;
+      }
+
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+    </style>
+
+    <!-- React app -->
+    <script type="module" src="/src/main.jsx" defer></script>
   </head>
   <body>
+    <!-- Loading state -->
+    <div id="loader">
+      <div class="spinner"></div>
+      <div>🌱 Mindful</div>
+    </div>
+
     <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
+
+    <script>
+      // Hide loader once React mounts
+      window.addEventListener('DOMContentLoaded', () => {
+        const root = document.getElementById('root');
+        const loader = document.getElementById('loader');
+
+        const observer = new MutationObserver(() => {
+          if (root.hasChildNodes()) {
+            loader.style.display = 'none';
+            observer.disconnect();
+          }
+        });
+
+        observer.observe(root, { childList: true });
+      });
+    </script>
   </body>
 </html>
