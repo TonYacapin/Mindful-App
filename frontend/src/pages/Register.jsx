@@ -10,14 +10,12 @@ export default function Register() {
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
-  const handleChange = (e) =>
-    setForm({ ...form, [e.target.name]: e.target.value });
+  const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
 
-    // Check password confirmation
     if (form.password !== form.confirmPassword) {
       setError("Passwords do not match.");
       return;
@@ -40,80 +38,79 @@ export default function Register() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-sky-100 via-pink-100 to-emerald-100 p-6">
-      <div className="bg-white/80 rounded-2xl shadow-lg p-8 w-full max-w-md border border-pink-200">
-        <h2 className="text-3xl font-bold text-pink-500 text-center mb-6 flex items-center justify-center gap-2">
-          <FaLeaf className="text-sky-500" />
-          Join Mindful 🌸
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-slate-100 to-slate-200 p-6">
+      <div className="bg-white rounded-3xl shadow-2xl p-10 w-full max-w-md border border-slate-300">
+        <h2 className="text-3xl font-bold text-slate-800 text-center mb-6 flex items-center justify-center gap-2">
+          <FaLeaf className="text-green-500" /> Join Mindful
         </h2>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           {/* Username */}
-          <div className="flex items-center bg-white rounded-lg border border-pink-300 shadow-sm px-3">
-            <FaUser className="text-pink-500 mr-2" />
+          <div className="flex items-center bg-slate-50 rounded-xl border border-slate-300 shadow-sm px-3">
+            <FaUser className="text-slate-400 mr-2" />
             <input
               name="username"
               placeholder="Username"
               onChange={handleChange}
-              className="p-2 w-full bg-transparent outline-none text-pink-700"
+              className="p-2 w-full bg-transparent outline-none text-slate-700 placeholder-slate-400"
             />
           </div>
 
           {/* Email */}
-          <div className="flex items-center bg-white rounded-lg border border-pink-300 shadow-sm px-3">
-            <FaEnvelope className="text-pink-500 mr-2" />
+          <div className="flex items-center bg-slate-50 rounded-xl border border-slate-300 shadow-sm px-3">
+            <FaEnvelope className="text-slate-400 mr-2" />
             <input
               name="email"
               placeholder="Email"
               onChange={handleChange}
-              className="p-2 w-full bg-transparent outline-none text-pink-700"
+              className="p-2 w-full bg-transparent outline-none text-slate-700 placeholder-slate-400"
             />
           </div>
 
           {/* Password */}
-          <div className="flex items-center bg-white rounded-lg border border-pink-300 shadow-sm px-3 relative">
-            <FaLock className="text-pink-500 mr-2" />
+          <div className="flex items-center bg-slate-50 rounded-xl border border-slate-300 shadow-sm px-3 relative">
+            <FaLock className="text-slate-400 mr-2" />
             <input
               type={showPassword ? "text" : "password"}
               name="password"
               placeholder="Password"
               onChange={handleChange}
-              className="p-2 w-full bg-transparent outline-none text-pink-700"
+              className="p-2 w-full bg-transparent outline-none text-slate-700 placeholder-slate-400"
             />
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3 text-pink-500 hover:text-pink-700"
+              className="absolute right-3 text-slate-400 hover:text-slate-600"
             >
               {showPassword ? <FaEyeSlash /> : <FaEye />}
             </button>
           </div>
 
           {/* Confirm Password */}
-          <div className="flex items-center bg-white rounded-lg border border-pink-300 shadow-sm px-3 relative">
-            <FaLock className="text-pink-500 mr-2" />
+          <div className="flex items-center bg-slate-50 rounded-xl border border-slate-300 shadow-sm px-3 relative">
+            <FaLock className="text-slate-400 mr-2" />
             <input
               type={showPassword ? "text" : "password"}
               name="confirmPassword"
               placeholder="Confirm Password"
               onChange={handleChange}
-              className="p-2 w-full bg-transparent outline-none text-pink-700"
+              className="p-2 w-full bg-transparent outline-none text-slate-700 placeholder-slate-400"
             />
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3 text-pink-500 hover:text-pink-700"
+              className="absolute right-3 text-slate-400 hover:text-slate-600"
             >
               {showPassword ? <FaEyeSlash /> : <FaEye />}
             </button>
           </div>
 
-          {error && <p className="text-pink-600 text-sm text-center">{error}</p>}
+          {error && <p className="text-red-500 text-sm text-center">{error}</p>}
 
           <button
             type="submit"
             disabled={loading}
-            className={`bg-gradient-to-r from-sky-400 to-pink-400 hover:opacity-90 text-white font-semibold py-2 rounded-lg shadow-md transition flex items-center justify-center gap-2 ${
+            className={`bg-gradient-to-r from-green-400 to-teal-400 hover:opacity-90 text-white font-semibold py-3 rounded-xl shadow-md transition flex items-center justify-center gap-2 ${
               loading ? "cursor-not-allowed opacity-70" : ""
             }`}
           >
@@ -123,10 +120,12 @@ export default function Register() {
 
         <button
           onClick={() => navigate("/login")}
-          className="mt-4 w-full bg-sky-200 hover:bg-sky-300 text-sky-700 font-medium py-2 rounded-lg shadow-sm transition"
+          className="mt-4 w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium py-2 rounded-xl shadow-sm transition"
         >
           Already have an account? Login
         </button>
+
+        <p className="text-center text-slate-400 mt-4">Created by Abakus</p>
       </div>
     </div>
   );

@@ -55,28 +55,13 @@ export default function Dashboard() {
 
   const latestMood = moods.length > 0 ? moods[moods.length - 1] : null;
 
-  const moodEmojis = {
-    sad: "😢",
-    stressed: "😖",
-    neutral: "😐",
-    happy: "😊",
-    excited: "🤩",
-  };
-
-  const moodScale = {
-    sad: 1,
-    stressed: 2,
-    neutral: 3,
-    happy: 4,
-    excited: 5,
-  };
-
+  const moodEmojis = { sad: "😢", stressed: "😖", neutral: "😐", happy: "😊", excited: "🤩" };
+  const moodScale = { sad: 1, stressed: 2, neutral: 3, happy: 4, excited: 5 };
   const moodLabels = Object.entries(moodScale).reduce((acc, [k, v]) => {
     acc[v] = `${moodEmojis[k]} ${k}`;
     return acc;
   }, {});
 
-  // Motivational quotes
   const quotes = [
     "🌟 Every check-in is a step towards self-awareness.",
     "💪 Small progress each day adds up to big results.",
@@ -87,7 +72,6 @@ export default function Dashboard() {
   ];
   const quoteOfTheDay = quotes[new Date().getDate() % quotes.length];
 
-  // Weekly reflection
   const last7Days = moods.filter(
     (m) => new Date(m.date) >= new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
   );
@@ -96,15 +80,12 @@ export default function Dashboard() {
     count: last7Days.filter((m) => m.moodValue === mood).length,
   }));
 
-  // Distribution for pie chart
   const pieData = Object.keys(moodEmojis).map((mood) => ({
     name: mood,
     value: moods.filter((m) => m.moodValue === mood).length,
   }));
+  const pieColors = ["#34D399", "#FBBF24", "#60A5FA", "#F87171", "#A78BFA"];
 
-  const pieColors = ["#FDE68A", "#FCA5A5", "#93C5FD", "#6EE7B7", "#C4B5FD"];
-
-  // Badge system
   const badges = [
     { streak: 3, label: "🌱 Getting Started" },
     { streak: 7, label: "🔥 One Week Warrior" },
@@ -112,23 +93,21 @@ export default function Dashboard() {
     { streak: 30, label: "🏆 One Month Milestone" },
   ];
   const earnedBadges = badges.filter((b) => streak >= b.streak);
-
-  // Mood history limited
   const moodsToShow = showAllHistory ? moods : moods.slice(0, 5);
 
   return (
-    <div className="p-6 space-y-6 relative">
+    <div className="p-6 space-y-6 relative bg-slate-50 min-h-screen">
       {showConfetti && <Confetti />}
 
-      <h2 className="text-3xl font-extrabold text-pink-500 text-center">
-        🌈 Mindful Journey Dashboard 🌻
+      <h2 className="text-3xl font-extrabold text-center text-slate-800">
+        🌈 Mindful Dashboard
       </h2>
 
       {/* Quote of the Day */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        className="p-4 bg-gradient-to-r from-yellow-200 via-pink-200 to-sky-200 rounded-xl text-slate-900 text-center shadow-lg font-bold text-lg"
+        className="p-4 bg-gradient-to-r from-green-200 to-teal-200 rounded-xl text-slate-900 text-center shadow-md font-semibold text-lg"
       >
         {quoteOfTheDay}
       </motion.div>
@@ -139,43 +118,39 @@ export default function Dashboard() {
       {/* Latest Mood */}
       {latestMood && (
         <motion.div
-          initial={{ scale: 0.9, opacity: 0 }}
+          initial={{ scale: 0.95, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
-          className="p-4 bg-pink-100 rounded-xl shadow-md border border-pink-300"
+          className="p-4 bg-white rounded-xl shadow-md border border-slate-300"
         >
-          <h3 className="text-xl font-semibold mb-2 text-pink-600">
+          <h3 className="text-xl font-semibold mb-2 text-slate-700">
             💖 Latest Mood: {moodEmojis[latestMood.moodValue] || "🌸"}
           </h3>
-          <p className="text-slate-700">
-            You checked in on{" "}
-            <b>{new Date(latestMood.date).toLocaleDateString()}</b>. Keep it up
-            — every check-in makes your journey brighter! 🌞
+          <p className="text-slate-600">
+            Checked in on <b>{new Date(latestMood.date).toLocaleDateString()}</b>. Keep going!
           </p>
         </motion.div>
       )}
 
       {/* Streak Tracker */}
       <motion.div
-        animate={{ scale: [1, 1.1, 1] }}
+        animate={{ scale: [1, 1.05, 1] }}
         transition={{ repeat: Infinity, duration: 2 }}
-        className="p-4 bg-gradient-to-r from-emerald-300 to-sky-300 rounded-xl shadow-lg text-slate-900 text-center font-extrabold text-xl"
+        className="p-4 bg-gradient-to-r from-teal-300 to-green-300 rounded-xl shadow-md text-slate-900 text-center font-bold text-xl"
       >
-        🔥 Current Streak: <b>{streak} days</b> 🎉
+        🔥 Current Streak: <b>{streak} days</b>
       </motion.div>
 
       {/* Earned Badges */}
       {earnedBadges.length > 0 && (
-        <div className="p-4 bg-yellow-100 rounded-xl shadow-md border border-yellow-300">
-          <h3 className="text-lg mb-4 text-yellow-600 font-bold">
-            🏅 Achievements
-          </h3>
-          <div className="flex gap-3 flex-wrap">
+        <div className="p-4 bg-white rounded-xl shadow-md border border-slate-300">
+          <h3 className="text-lg mb-3 text-slate-700 font-bold">🏅 Achievements</h3>
+          <div className="flex flex-wrap gap-2">
             {earnedBadges.map((b, idx) => (
               <motion.span
                 key={idx}
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="px-3 py-1 bg-pink-400 text-white rounded-full text-sm shadow"
+                className="px-3 py-1 bg-teal-400 text-white rounded-full text-sm shadow"
               >
                 {b.label}
               </motion.span>
@@ -184,76 +159,60 @@ export default function Dashboard() {
         </div>
       )}
 
-      {/* Mood Chart */}
-{moods.length > 0 && (
-  <div className="p-4 bg-sky-100 rounded-xl shadow-md border border-sky-300">
-    <h3 className="text-lg mb-4 text-sky-600 font-bold">📊 Mood Progress</h3>
-    <div className="w-full h-[300px]"> {/* ✅ ensures parent has height */}
-      <ResponsiveContainer width="100%" height="100%">
-        <LineChart
-          data={moods.map((m) => ({
-            date: new Date(m.date).toLocaleDateString(),
-            mood: moodScale[m.moodValue] || 0,
-          }))}
-        >
-          <XAxis dataKey="date" />
-          <YAxis
-            domain={[1, 5]}
-            ticks={[1, 2, 3, 4, 5]}
-            tickFormatter={(val) => moodLabels[val] || val}
-          />
-          <Tooltip formatter={(val) => moodLabels[val] || val} />
-          <Line
-            type="monotone"
-            dataKey="mood"
-            stroke="#EC4899"
-            strokeWidth={2}
-            dot={{ r: 5 }}
-          />
-        </LineChart>
-      </ResponsiveContainer>
-    </div>
-  </div>
-)}
-
-      {/* Mood Distribution */}
+      {/* Mood Charts */}
       {moods.length > 0 && (
-        <div className="p-4 bg-emerald-100 rounded-xl shadow-md border border-emerald-300">
-          <h3 className="text-lg mb-4 text-emerald-600 font-bold">
-            🍰 Mood Distribution
-          </h3>
-          <ResponsiveContainer width="100%" height={300}>
-            <PieChart>
-              <Pie
-                data={pieData}
-                dataKey="value"
-                nameKey="name"
-                cx="50%"
-                cy="50%"
-                outerRadius="80%"
-                label={(entry) =>
-                  `${moodEmojis[entry.name]} ${entry.value || 0}`
-                }
-              >
-                {pieData.map((_, index) => (
-                  <Cell
-                    key={`cell-${index}`}
-                    fill={pieColors[index % pieColors.length]}
-                  />
-                ))}
-              </Pie>
-            </PieChart>
-          </ResponsiveContainer>
+        <div className="grid md:grid-cols-2 gap-4">
+          {/* Line Chart */}
+          <div className="p-4 bg-white rounded-xl shadow-md border border-slate-300">
+            <h3 className="text-lg mb-3 font-semibold text-slate-700">📈 Mood Progress</h3>
+            <div className="w-full h-[250px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart
+                  data={moods.map((m) => ({
+                    date: new Date(m.date).toLocaleDateString(),
+                    mood: moodScale[m.moodValue] || 0,
+                  }))}
+                >
+                  <XAxis dataKey="date" />
+                  <YAxis domain={[1, 5]} ticks={[1, 2, 3, 4, 5]} tickFormatter={(val) => moodLabels[val]} />
+                  <Tooltip formatter={(val) => moodLabels[val]} />
+                  <Line type="monotone" dataKey="mood" stroke="#10B981" strokeWidth={2} dot={{ r: 4 }} />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+
+          {/* Pie Chart */}
+          <div className="p-4 bg-white rounded-xl shadow-md border border-slate-300">
+            <h3 className="text-lg mb-3 font-semibold text-slate-700">🍰 Mood Distribution</h3>
+            <div className="w-full h-[250px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={pieData}
+                    dataKey="value"
+                    nameKey="name"
+                    cx="50%"
+                    cy="50%"
+                    outerRadius="80%"
+                    label={(entry) => `${moodEmojis[entry.name]} ${entry.value || 0}`}
+                  >
+                    {pieData.map((_, index) => (
+                      <Cell key={index} fill={pieColors[index % pieColors.length]} />
+                    ))}
+                  </Pie>
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
         </div>
       )}
 
       {/* Weekly Reflection */}
       {weeklySummary.some((w) => w.count > 0) && (
-        <div className="p-4 bg-violet-100 rounded-xl shadow-md border border-violet-300">
-          <h3 className="text-lg mb-4 text-violet-600 font-bold">
-            🗓 Weekly Reflection
-          </h3>
-          <ul className="space-y-2 text-slate-700">
+        <div className="p-4 bg-white rounded-xl shadow-md border border-slate-300">
+          <h3 className="text-lg mb-3 font-semibold text-slate-700">🗓 Weekly Reflection</h3>
+          <ul className="space-y-1 text-slate-600">
             {weeklySummary.map((w, idx) =>
               w.count > 0 ? (
                 <li key={idx}>
@@ -267,30 +226,23 @@ export default function Dashboard() {
 
       {/* Mood History */}
       <div>
-        <h3 className="text-xl mt-6 mb-4 text-pink-500 font-bold">
-          📖 Your Mood History
-        </h3>
-        <div className="grid md:grid-cols-2 gap-4">
+        <h3 className="text-xl mt-4 mb-3 font-bold text-slate-800">📖 Your Mood History</h3>
+        <div className="grid md:grid-cols-2 gap-3">
           {moodsToShow.map((m) => (
             <motion.div
               key={m._id}
-              whileHover={{ scale: 1.05 }}
-              className="p-4 bg-white rounded-xl shadow-md flex justify-between items-center border border-slate-200"
+              whileHover={{ scale: 1.03 }}
+              className="p-3 bg-white rounded-xl shadow-md flex justify-between items-center border border-slate-200"
             >
-              <span className="text-lg">
-                {moodEmojis[m.moodValue] || "🌸"} {m.moodValue}
-              </span>
-              <span className="text-slate-500 text-sm">
-                {new Date(m.date).toLocaleDateString()}
-              </span>
+              <span className="text-lg">{moodEmojis[m.moodValue]} {m.moodValue}</span>
+              <span className="text-slate-500 text-sm">{new Date(m.date).toLocaleDateString()}</span>
             </motion.div>
           ))}
         </div>
-
         {moods.length > 5 && (
           <button
             onClick={() => setShowAllHistory(!showAllHistory)}
-            className="mt-4 px-4 py-2 bg-pink-500 hover:bg-pink-600 text-white rounded-lg transition-all shadow"
+            className="mt-3 px-4 py-2 bg-teal-400 hover:bg-teal-500 text-white rounded-lg shadow transition"
           >
             {showAllHistory ? "Show Less" : "Show More"}
           </button>

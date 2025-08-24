@@ -6,9 +6,8 @@
   line-height: 1.5;
   font-weight: 400;
 
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+  color: #213547;
+  background-color: #ffffff;
 
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -39,30 +38,5 @@ h2 {
 
 button {
   @apply rounded-lg px-4 py-2 font-medium transition 
-         bg-gray-900 text-white hover:bg-gray-700;
-}
-
-/* Links */
-a {
-  @apply font-medium text-blue-400 hover:text-blue-500 transition;
-}
-
-/* Light mode adjustments */
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
-
-  body {
-    background-color: #ffffff;
-  }
-
-  a {
-    @apply text-blue-600 hover:text-blue-700;
-  }
-
-  button {
-    @apply bg-gray-200 text-gray-900 hover:bg-gray-300;
-  }
+         bg-gray-200 text-gray-900 hover:bg-gray-300;
 }
