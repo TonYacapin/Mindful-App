@@ -93,7 +93,7 @@ export default function Dashboard() {
 
   useEffect(() => {
     fetchMoods();
-  }, [fetchMoods]);
+  }, []);
 
   const latestMood = moods.length > 0 ? moods[0] : null; // Now using the first item since we sorted newest first
 
