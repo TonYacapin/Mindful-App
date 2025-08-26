@@ -7,7 +7,7 @@ import {
   LineChart,
   Line,
   XAxis,
-  YAxis,
+ YAxis,
   Tooltip,
   ResponsiveContainer,
   PieChart,
@@ -22,27 +22,69 @@ export default function Dashboard() {
   const [showConfetti, setShowConfetti] = useState(false);
 
   const fetchMoods = async () => {
-    const res = await API.get("/moods");
-    setMoods(res.data);
-    calculateStreak(res.data);
+    try {
+      const res = await API.get("/moods");
+      // Sort moods by date in descending order (newest first)
+      const sortedMoods = res.data.sort((a, b) => new Date(b.date) - new Date(a.date));
+      setMoods(sortedMoods);
+      calculateStreak(sortedMoods);
+    } catch (error) {
+      console.error("Error fetching moods:", error);
+    }
   };
 
-  const calculateStreak = (data) => {
-    let sorted = [...data].sort((a, b) => new Date(b.date) - new Date(a.date));
-    let today = new Date().toDateString();
-    let streakCount = 0;
+  // Helper function to normalize dates to the same day (ignoring time)
+  const normalizeDate = (dateString) => {
+    const date = new Date(dateString);
+    date.setHours(0, 0, 0, 0);
+    return date;
+  };
 
-    for (let i = 0; i < sorted.length; i++) {
-      let currentDate = new Date(sorted[i].date).toDateString();
-      if (i === 0 && currentDate !== today) break;
-      streakCount++;
-      let nextDate = new Date(sorted[i + 1]?.date).toDateString();
-      let expectedPrevDay = new Date(sorted[i].date);
-      expectedPrevDay.setDate(expectedPrevDay.getDate() - 1);
-      if (nextDate !== expectedPrevDay.toDateString()) break;
+  const calculateStreak = (moodData) => {
+    if (moodData.length === 0) {
+      setStreak(0);
+      return;
     }
+
+    // Get today's date (normalized)
+    const today = normalizeDate(new Date());
+    
+    // Sort by date in descending order (newest first)
+    const sorted = [...moodData].sort((a, b) => new Date(b.date) - new Date(a.date));
+    
+    let streakCount = 0;
+    let currentDate = today;
+    
+    // Check if the most recent entry is today
+    const mostRecentDate = normalizeDate(sorted[0].date);
+    if (mostRecentDate.getTime() !== today.getTime()) {
+      // No entry for today, streak is 0
+      setStreak(0);
+      return;
+    }
+    
+    streakCount = 1; // Count today
+    
+    // Check previous days
+    for (let i = 1; i < sorted.length; i++) {
+      const entryDate = normalizeDate(sorted[i].date);
+      const expectedDate = new Date(currentDate);
+      expectedDate.setDate(expectedDate.getDate() - 1);
+      expectedDate.setHours(0, 0, 0, 0);
+      
+      if (entryDate.getTime() === expectedDate.getTime()) {
+        streakCount++;
+        currentDate = expectedDate;
+      } else if (entryDate < expectedDate) {
+        // There's a gap in the entries, break the streak
+        break;
+      }
+      // If entryDate is more recent than expectedDate, continue (shouldn't happen with sorted data)
+    }
+    
     setStreak(streakCount);
 
+    // Trigger confetti for milestone streaks
     if (streakCount > 0 && (streakCount === 3 || streakCount === 7 || streakCount % 10 === 0)) {
       setShowConfetti(true);
       setTimeout(() => setShowConfetti(false), 5000);
@@ -53,7 +95,7 @@ export default function Dashboard() {
     fetchMoods();
   }, []);
 
-  const latestMood = moods.length > 0 ? moods[moods.length - 1] : null;
+  const latestMood = moods.length > 0 ? moods[0] : null; // Now using the first item since we sorted newest first
 
   const moodEmojis = { sad: "😢", stressed: "😖", neutral: "😐", happy: "😊", excited: "🤩" };
   const moodScale = { sad: 1, stressed: 2, neutral: 3, happy: 4, excited: 5 };
@@ -67,14 +109,16 @@ export default function Dashboard() {
     "💪 Small progress each day adds up to big results.",
     "🌈 Your feelings matter — honor them today.",
     "🔥 Consistency builds strength. Keep going!",
-    "💖 Be kind to yourself, you’re doing amazing.",
+    "💖 Be kind to yourself, you're doing amazing.",
     "🌻 You are growing beautifully, keep shining!",
   ];
   const quoteOfTheDay = quotes[new Date().getDate() % quotes.length];
 
+  // Get last 7 days of moods
   const last7Days = moods.filter(
     (m) => new Date(m.date) >= new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
   );
+  
   const weeklySummary = Object.keys(moodEmojis).map((mood) => ({
     mood,
     count: last7Days.filter((m) => m.moodValue === mood).length,
@@ -93,6 +137,8 @@ export default function Dashboard() {
     { streak: 30, label: "🏆 One Month Milestone" },
   ];
   const earnedBadges = badges.filter((b) => streak >= b.streak);
+  
+  // Show either all moods or just the first 5 (newest ones)
   const moodsToShow = showAllHistory ? moods : moods.slice(0, 5);
 
   return (
@@ -116,7 +162,7 @@ export default function Dashboard() {
       <MoodCheckin onCheckin={fetchMoods} />
 
       {/* Latest Mood */}
-      {latestMood && (
+      {latestMood ? (
         <motion.div
           initial={{ scale: 0.95, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
@@ -127,6 +173,19 @@ export default function Dashboard() {
           </h3>
           <p className="text-slate-600">
             Checked in on <b>{new Date(latestMood.date).toLocaleDateString()}</b>. Keep going!
+          </p>
+        </motion.div>
+      ) : (
+        <motion.div
+          initial={{ scale: 0.95, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          className="p-4 bg-white rounded-xl shadow-md border border-slate-300"
+        >
+          <h3 className="text-xl font-semibold mb-2 text-slate-700">
+            📝 No check-ins yet
+          </h3>
+          <p className="text-slate-600">
+            Complete your first mood check-in to see your progress here!
           </p>
         </motion.div>
       )}
@@ -141,7 +200,7 @@ export default function Dashboard() {
       </motion.div>
 
       {/* Earned Badges */}
-      {earnedBadges.length > 0 && (
+      {earnedBadges.length > 0 ? (
         <div className="p-4 bg-white rounded-xl shadow-md border border-slate-300">
           <h3 className="text-lg mb-3 text-slate-700 font-bold">🏅 Achievements</h3>
           <div className="flex flex-wrap gap-2">
@@ -157,10 +216,15 @@ export default function Dashboard() {
             ))}
           </div>
         </div>
+      ) : moods.length > 0 && (
+        <div className="p-4 bg-white rounded-xl shadow-md border border-slate-300">
+          <h3 className="text-lg mb-3 text-slate-700 font-bold">🏅 Achievements</h3>
+          <p className="text-slate-600">Keep up your streak to earn badges!</p>
+        </div>
       )}
 
       {/* Mood Charts */}
-      {moods.length > 0 && (
+      {moods.length > 0 ? (
         <div className="grid md:grid-cols-2 gap-4">
           {/* Line Chart */}
           <div className="p-4 bg-white rounded-xl shadow-md border border-slate-300">
@@ -206,6 +270,11 @@ export default function Dashboard() {
             </div>
           </div>
         </div>
+      ) : (
+        <div className="p-4 bg-white rounded-xl shadow-md border border-slate-300">
+          <h3 className="text-lg mb-3 font-semibold text-slate-700">📊 Mood Charts</h3>
+          <p className="text-slate-600">Complete a few check-ins to see your mood charts here!</p>
+        </div>
       )}
 
       {/* Weekly Reflection */}
@@ -227,25 +296,31 @@ export default function Dashboard() {
       {/* Mood History */}
       <div>
         <h3 className="text-xl mt-4 mb-3 font-bold text-slate-800">📖 Your Mood History</h3>
-        <div className="grid md:grid-cols-2 gap-3">
-          {moodsToShow.map((m) => (
-            <motion.div
-              key={m._id}
-              whileHover={{ scale: 1.03 }}
-              className="p-3 bg-white rounded-xl shadow-md flex justify-between items-center border border-slate-200"
-            >
-              <span className="text-lg">{moodEmojis[m.moodValue]} {m.moodValue}</span>
-              <span className="text-slate-500 text-sm">{new Date(m.date).toLocaleDateString()}</span>
-            </motion.div>
-          ))}
-        </div>
-        {moods.length > 5 && (
-          <button
-            onClick={() => setShowAllHistory(!showAllHistory)}
-            className="mt-3 px-4 py-2 bg-teal-400 hover:bg-teal-500 text-white rounded-lg shadow transition"
-          >
-            {showAllHistory ? "Show Less" : "Show More"}
-          </button>
+        {moods.length > 0 ? (
+          <>
+            <div className="grid md:grid-cols-2 gap-3">
+              {moodsToShow.map((m) => (
+                <motion.div
+                  key={m._id}
+                  whileHover={{ scale: 1.03 }}
+                  className="p-3 bg-white rounded-xl shadow-md flex justify-between items-center border border-slate-200"
+                >
+                  <span className="text-lg">{moodEmojis[m.moodValue]} {m.moodValue}</span>
+                  <span className="text-slate-500 text-sm">{new Date(m.date).toLocaleDateString()}</span>
+                </motion.div>
+              ))}
+            </div>
+            {moods.length > 5 && (
+              <button
+                onClick={() => setShowAllHistory(!showAllHistory)}
+                className="mt-3 px-4 py-2 bg-teal-400 hover:bg-teal-500 text-white rounded-lg shadow transition"
+              >
+                {showAllHistory ? "Show Less" : "Show More"}
+              </button>
+            )}
+          </>
+        ) : (
+          <p className="text-slate-600">No mood history yet. Complete your first check-in!</p>
         )}
       </div>
     </div>
